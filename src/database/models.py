@@ -1,5 +1,20 @@
 from app import db
 
+# helpers tables to many-to-many relationship
+myDonations = db.Table('my_donations',
+                       db.Column('persons_id', db.Integer,
+                                 db.ForeignKey('persons.id'),
+                                 primary_key=True),
+
+                       db.Column('donations_objects_id', db.Integer,
+                                 db.ForeignKey('donation_objects.id'),
+                                 primary_key=True))
+
+donationState = db.Table('donation_sate',
+                         db.Column('donations_objects_id', db.Integer, db.ForeignKey('donation_objects.id')),
+                         db.Column('states_id', db.Integer, db.ForeignKey('states.id')),
+                         db.Column('date_change', db.DateTime(), ))
+
 
 class Person(db.Model):
     __tablename__ = 'persons'
@@ -8,7 +23,9 @@ class Person(db.Model):
     name = db.Column(db.String())
     login = db.Column(db.String())
     password = db.Column(db.String())
-    my_donations = db.relationship('DonationObject', backref='person', lazy=True)
+    my_donations = db.relationship('DonationObject', secondary=myDonations,
+                                   lazy='subquery',
+                                   backref=db.backref('person', lazy=True), )
 
     def __init__(self, name):
         self.name = name
@@ -19,7 +36,7 @@ class Person(db.Model):
     def serialize(self):
         return {
             'id': self.id,
-            'name': self.name
+            'name': self.name,
 
         }
 
@@ -51,15 +68,14 @@ class Category(db.Model):
 
 class DonationObject(db.Model):
     __tablename__ = 'donation_objects'
+
     id = db.Column(db.Integer, primary_key=True)
     description = db.Column(db.String())
     quantity = db.Column(db.Integer())
+    category_id = db.Column(db.Integer, db.ForeignKey('categories.id'), nullable=False)
 
-    category_id = db.Column(db.Integer, db.ForeignKey('categories.id'),
-                            nullable=False)
-
-    person = db.relationship('Person', backref='donation_objectgory', lazy=True)
-
+    donation_states = db.relationship('States', secondary=donationState, lazy='subquery',
+                                      backref=db.backref('donations_objects', lazy=True))
 
     def __init__(self, description, quantity, category_id):
         self.description = description
@@ -96,13 +112,3 @@ class States(db.Model):
             'id': self.id,
             'name': self.name
         }
-
-
-myDonations = db.Table('my_donations',
-                       db.Column('persons_id', db.Integer, db.ForeignKey('persons.id'), primary_key=True),
-                       db.Column('donations_objects.id', db.Integer, db.ForeignKey('donation_objects.id')))
-
-donationState = db.Table('donation_sate',
-                        db.Column('donations_objects.id', db.Integer, db.ForeignKey('donation_objects.id')),
-                        db.Column('states_id', db.Integer, db.ForeignKey('states.id')),
-                        db.Column('date_change', db.DateTime(), ))

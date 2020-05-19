@@ -4,6 +4,5 @@ Flask-SQLAlchemy
 Flask-WTF
 psycopg2-binary
 pyreportjasper
-
 flask_script
 flask_migrate
