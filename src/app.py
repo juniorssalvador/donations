@@ -18,6 +18,7 @@ app.register_blueprint(person_rest)
 app.register_blueprint(category_rest)
 app.register_blueprint(state_rest)
 
+
 @app.errorhandler(404)
 def url_404(e):
     return 'not found'

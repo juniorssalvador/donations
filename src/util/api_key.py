@@ -3,6 +3,7 @@ from flask import request, abort
 
 
 def require_apy_key(view_function):
+
     @wraps(view_function)
     def decorated_function(*args, **kwargs):
         print(request.headers.get('API_KEY'))

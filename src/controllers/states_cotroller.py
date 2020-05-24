@@ -2,6 +2,7 @@ from flask import jsonify
 from database.models import States
 from app import db
 
+
 class StateController:
 
     def get_all(self):
